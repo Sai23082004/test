@@ -124,9 +124,7 @@
     </div>
 
     <script>
-        const SHEET_ID = '1bwsqiBca581sR7DNgypVazNNDZqQVCxMEQJupwAiLv4'; // Replace with your Google Sheet ID
-        const API_KEY = '704152f8b3e18e519d1f8dcb23120edd8276036f'; // Replace with your API Key
-        const SHEET_NAME = 'Sheet1'; // Replace with your sheet name
+        const users = [];
 
         function showRegister() {
             document.getElementById('loginContainer').style.display = 'none';
@@ -155,46 +153,23 @@
                 return;
             }
 
-            const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}!A1:append?valueInputOption=USER_ENTERED&key=${API_KEY}`;
-            const data = {
-                values: [[studentId, name, email, password]]
-            };
-
-            fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data),
-            })
-                .then(response => response.json())
-                .then(result => {
-                    if (result.updates) {
-                        alert('Registration successful!');
-                        showLogin();
-                    } else {
-                        alert('Failed to register. Try again.');
-                    }
-                })
-                .catch(error => console.error('Error:', error));
+            users.push({ studentId, name, email, password });
+            alert('Registration successful!');
+            showLogin();
         }
 
         function login() {
             const email = document.getElementById('loginGmail').value;
             const password = document.getElementById('loginPassword').value;
 
-            const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}?key=${API_KEY}`;
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    const users = data.values || [];
-                    const user = users.find(row => row[2] === email && row[3] === password); // Assuming email is in 3rd column and password in 4th column
-                    if (user) {
-                        alert(`Welcome, ${user[1]}!`); // Assuming name is in 2nd column
-                        window.location.href = 'welcome.html';
-                    } else {
-                        alert('Invalid credentials.');
-                    }
-                })
-                .catch(error => console.error('Error:', error));
+            const user = users.find(u => u.email === email && u.password === password);
+
+            if (user) {
+                alert(`Welcome, ${user.name}!`);
+                window.location.href = 'welcome.html'; // Replace with your actual welcome page URL
+            } else {
+                alert('Invalid credentials.');
+            }
         }
     </script>
 </body>

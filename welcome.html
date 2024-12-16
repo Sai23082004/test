@@ -151,56 +151,47 @@
     </div>
 
     <script>
-        // Load tasks from localStorage if available
-        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+        const tasks = [];
         const studentName = "John Doe";
         document.getElementById("studentName").textContent = studentName;
-    
+
         function addTask() {
             const date = document.getElementById('date').value;
             const subject = document.getElementById('subject').value;
             const task = document.getElementById('task').value;
             const notes = document.getElementById('notes').value;
-    
+
             if (!date || !subject || !task || !notes) {
                 alert('All fields are required.');
                 return;
             }
-    
-            // Add the new task to the array
+
             tasks.push({ date, subject, task, notes });
-    
-            // Save the updated tasks array to localStorage
-            localStorage.setItem('tasks', JSON.stringify(tasks));
-    
             document.getElementById('message').style.display = 'block';
             setTimeout(() => {
                 document.getElementById('message').style.display = 'none';
             }, 2000);
-    
-            // Clear input fields
+
             document.getElementById('date').value = '';
             document.getElementById('subject').value = '';
             document.getElementById('task').value = '';
             document.getElementById('notes').value = '';
         }
-    
+
         function searchTasks() {
             const searchDate = document.getElementById('searchDate').value;
             const resultsTable = document.getElementById('resultsTable');
             const resultsBody = document.getElementById('resultsBody');
             resultsBody.innerHTML = '';
-    
-            // Filter tasks for the selected date
+
             const filteredTasks = tasks.filter(task => task.date === searchDate);
-    
+
             if (filteredTasks.length === 0) {
                 resultsTable.style.display = 'none';
                 alert('No tasks found for the selected date.');
                 return;
             }
-    
-            // Populate the results table with the filtered tasks
+
             filteredTasks.forEach(task => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
@@ -211,10 +202,9 @@
                 `;
                 resultsBody.appendChild(row);
             });
-    
+
             resultsTable.style.display = 'table';
         }
     </script>
-    
 </body>
 </html>
