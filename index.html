@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login and Register</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f3f3f3;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 300px;
+        }
+
+        .container h2 {
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .form-group button {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .form-group button:hover {
+            background-color: #0056b3;
+        }
+
+        .toggle {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .toggle a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .toggle a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="loginContainer">
+        <h2>Login</h2>
+        <div class="form-group">
+            <label for="loginGmail">Gmail</label>
+            <input type="email" id="loginGmail" placeholder="Enter your email">
+        </div>
+        <div class="form-group">
+            <label for="loginPassword">Password</label>
+            <input type="password" id="loginPassword" placeholder="Enter your password">
+        </div>
+        <div class="form-group">
+            <button onclick="login()">Log In</button>
+        </div>
+        <div class="toggle">
+            Don't have an account? <a href="#" onclick="showRegister()">Register here</a>
+        </div>
+    </div>
+
+    <div class="container" id="registerContainer" style="display: none;">
+        <h2>Register</h2>
+        <div class="form-group">
+            <label for="studentId">Student ID</label>
+            <input type="text" id="studentId" placeholder="Enter your student ID">
+        </div>
+        <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" id="name" placeholder="Enter your name">
+        </div>
+        <div class="form-group">
+            <label for="registerGmail">Gmail</label>
+            <input type="email" id="registerGmail" placeholder="Enter your email">
+        </div>
+        <div class="form-group">
+            <label for="registerPassword">Password</label>
+            <input type="password" id="registerPassword" placeholder="Enter your password">
+        </div>
+        <div class="form-group">
+            <label for="confirmPassword">Confirm Password</label>
+            <input type="password" id="confirmPassword" placeholder="Confirm your password">
+        </div>
+        <div class="form-group">
+            <button onclick="register()">Register</button>
+        </div>
+        <div class="toggle">
+            Already have an account? <a href="#" onclick="showLogin()">Log in here</a>
+        </div>
+    </div>
+
+    <script>
+        const SHEET_ID = '1bwsqiBca581sR7DNgypVazNNDZqQVCxMEQJupwAiLv4'; // Replace with your Google Sheet ID
+        const API_KEY = '704152f8b3e18e519d1f8dcb23120edd8276036f'; // Replace with your API Key
+        const SHEET_NAME = 'Sheet1'; // Replace with your sheet name
+
+        function showRegister() {
+            document.getElementById('loginContainer').style.display = 'none';
+            document.getElementById('registerContainer').style.display = 'block';
+        }
+
+        function showLogin() {
+            document.getElementById('registerContainer').style.display = 'none';
+            document.getElementById('loginContainer').style.display = 'block';
+        }
+
+        function register() {
+            const studentId = document.getElementById('studentId').value;
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('registerGmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (!studentId || !name || !email || !password || !confirmPassword) {
+                alert('All fields are required.');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                alert('Passwords do not match.');
+                return;
+            }
+
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}!A1:append?valueInputOption=USER_ENTERED&key=${API_KEY}`;
+            const data = {
+                values: [[studentId, name, email, password]]
+            };
+
+            fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.updates) {
+                        alert('Registration successful!');
+                        showLogin();
+                    } else {
+                        alert('Failed to register. Try again.');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        function login() {
+            const email = document.getElementById('loginGmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}?key=${API_KEY}`;
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    const users = data.values || [];
+                    const user = users.find(row => row[2] === email && row[3] === password); // Assuming email is in 3rd column and password in 4th column
+                    if (user) {
+                        alert(`Welcome, ${user[1]}!`); // Assuming name is in 2nd column
+                        window.location.href = 'welcome.html';
+                    } else {
+                        alert('Invalid credentials.');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>
